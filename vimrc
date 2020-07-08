@@ -12,7 +12,20 @@ set autoindent
 set autowrite										" automatically save before commands like :next and :make
 set hidden											" Hide buffers when they are abandoned
 
+" leader键设置 {{{
+inoremap jk <ESC>
+let mapleader = " "
+nmap <bslash> <space>
+nnoremap <leader>d dd
+nnoremap <leader>ev :vsplit $MYVIMRC<cr>			" Edit my vimrc file
+nnoremap <leader>sv :source $MYVIMRC<cr>			" Source my vimrc file
+" }}}
+
 " General {{{
+
+" --- mouse {{{
+" set mouse=a
+" }}}
 
 " --- *.vim 文件读取设置{{{
 augroup filetype_vim
@@ -25,6 +38,8 @@ augroup END
 " With a map leader it's possible to do extra key combinations
 " like <leader>w saves the current file
 " Fast saving
+let g:auto_save = 1
+let g:auto_save_events = ["InsertLeave", "TextChanged", "TextChangedI", "CursorHoldI", "CompleteDone"]
 nmap <leader>w :w!<cr>
 
 " :W sudo saves the file
@@ -46,8 +61,8 @@ set wildignore=*.o,*~,*.pyc,*/.git/*,*/.hg/*,*/.svn/*,*/.DS_Store
 " --- 搜索设置 {{{
 "
 " Map <Space> to / (search) and Ctrl-<Space> to ? (backwards search)
-map <space> /
-map <c-space> ?
+" map <space> /
+" map <space> ?
 
 " Ignore case when searching
 set ignorecase
@@ -62,7 +77,7 @@ set hlsearch
 set incsearch
 
 " Disable highlight when <leader><cr> is pressed
-nnoremap <silent> <leader>q :noh<cr>
+" nnoremap <silent> <leader>q :noh<cr>
 " }}}
 
 " --- Files, backups and undo {{{
@@ -113,10 +128,9 @@ map <leader>tn :tabnew<cr>
 map <leader>to :tabonly<cr>
 map <leader>tc :tabclose<cr>
 map <leader>tm :tabmove
-map <leader>t<leader> :tabnext
-
-" Let 'tl' toggle between this and the last accessed tab
-let g:lasttab = 1
+" map <leader>t<leader> :tabnext
+" " Let 'tl' toggle between this and the last accessed tab
+let g:lasttab = 2
 nmap <Leader>tl :exe "tabn ".g:lasttab<CR>
 au TabLeave * let g:lasttab = tabpagenr()
 
@@ -128,11 +142,8 @@ map <leader>te :tabedit <c-r>=expand("%:p:h")<cr>/
 map <leader>cd :cd %:p:h<cr>:pwd<cr>
 
 " Specify the behavior when switching between buffers
-try
-  set switchbuf=useopen,usetab,newtab
-  set stal=2
-catch
-endtry
+set switchbuf=useopen,usetab,newtab
+set stal=2
 " }}}
 
 " windows {{{
@@ -213,27 +224,19 @@ set foldcolumn=1
 map <leader>pp :setlocal paste!<cr>
 " }}}
 
-" leader键设置 {{{
-inoremap jk <ESC>
-let mapleader = ","
-nnoremap <leader>d dd
-nnoremap <leader>ev :vsplit $MYVIMRC<cr>			" Edit my vimrc file
-nnoremap <leader>sv :source $MYVIMRC<cr>			" Source my vimrc file
-" }}}
-
 " html 设置{{{
 " autocmd BufWritePre,BufRead *.html :normal gg=G   " 自动对齐
 " }}}
 
 " Python 文件设置 {{{
-au BufNewFile,BufRead *.py  " au: autocmd
-    \ set tabstop=4         "tab宽度
-    \ set softtabstop=4
-    \ set shiftwidth=4
-    \ set textwidth=79      "行最大宽度
-    \ set expandtab         "tab替换为空格键
-    \ set autoindent        "自动缩进
-    \ set fileformat=unix   "保存文件格式
+"au BufNewFile,BufRead *.py  " au: autocmd
+"    \ set tabstop=4         "tab宽度
+"    \ set softtabstop=4
+"    \ set shiftwidth=4
+"    \ set textwidth=79      "行最大宽度
+"    \ set expandtab         "tab替换为空格键
+"    \ set autoindent        "自动缩进
+"    \ set fileformat=unix   "保存文件格式
 " }}}
 
 " F5运行程序 {{{
@@ -280,12 +283,11 @@ syntax enable
 "     set t_Co=256
 " endif
 
-try
-    colorscheme desert
-catch
-endtry
 
+" colorscheme desert
 " set background=dark
+let base16colorspace=256
+" set termguicolors
 
 " Set extra options when running in GUI mode
 " if has("gui_running")
@@ -375,21 +377,21 @@ endfunction
 call plug#begin('~/.vim/plug')
 
 Plug 'vim-scripts/The-NERD-tree'                        " nerd-tree         文件目录结构
+Plug 'Xuyuanp/nerdtree-git-plugin'
 Plug 'majutsushi/tagbar'                                " tagbar            文件结构
 Plug 'ntpeters/vim-better-whitespace'                   " whitespace        冗余空格去除
 Plug 'benmills/vimux'                                   " vimux             融合tmux
-
+Plug 'christoomey/vim-tmux-navigator'                   " vimux             窗口移动
 Plug 'tpope/vim-commentary'                             "                   注释功能(gcc)
+Plug 'chriskempson/base16-vim'                          " themes
 Plug 'terryma/vim-multiple-cursors'                     "                   多光标功能(c-n)
 Plug 'vim-scripts/DoxygenToolkit.vim'                   "                   Doxygen注释功能(:Dox)
-Plug 'vim-airline/vim-airline'                          " airline           底行辅助功能
+Plug 'itchyny/lightline.vim'
 Plug 'tpope/vim-surround'                               "                   更改surrounding
 Plug 'kien/ctrlp.vim'                                   "                   正则表达式打开文件(c-p)
-
 Plug 'nathanaelkane/vim-indent-guides'                  "                   缩进显示
 Plug 'fholgado/minibufexpl.vim'                         " minibufexpl       缓冲工具
-Plug 'easymotion/vim-easymotion'                        " easymotion        移动工具
-
+Plug 'easymotion/vim-easymotion'                        " asymotion        移动工具
 Plug 'Valloric/YouCompleteMe',{'for':['c','cpp']}       " YCM               c++ 补全工具
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
                                                         " PythonMode        {P}包括pylint, rope, pydoc
@@ -397,7 +399,11 @@ Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
                                                         " JEDI              python 补全工具
 
 Plug 'tpope/vim-fugitive'                               "                   {P}GIT 功能
+Plug 'airblade/vim-gitgutter'
+Plug 'idanarye/vim-merginal'
 Plug 'skywind3000/asyncrun.vim'
+Plug 'mhinz/vim-startify'                              "                   初始界面
+Plug 'elzr/vim-json'
 
 " Plug 'SirVer/ultisnips'                               " TODO              全代码块补全
 " Plug 'tpope/vim-rails'                                "                   针对RubyOnRails代码
@@ -415,7 +421,7 @@ Plug 'skywind3000/asyncrun.vim'
 " Plug 'yianwillis/vimcdoc'
 " Plug 'klen/python-mode'
 " Plug 'ryanoasis/vim-devicons'
-Plug 'chriskempson/base16-vim'                        " themes
+" Plug 'vim-airline/vim-airline'                        " airline           底行辅助功能  --->lightline
 "  junegunn/fzf
 
 
@@ -423,18 +429,19 @@ call plug#end()
 
 " }}}
 
-" --- Airline setting {{{
-let g:airline_powerline_fonts=1
-let g:airline#extensions#tabline#enabled=1
-let g:airline#extensions#tabline#buffer_nr_show=1
-let g:airline#extensions#tabline#left_sep=''
-let g:airline#extensions#tabline#left_alt_sep=''
-nnoremap [b :bp<CR>
-nnoremap ]b :bn<CR>
-let g:airline_left_sep = ''
-let g:airline_left_alt_sep = ''
-let g:airline_right_sep = ''
-let g:airline_right_alt_sep = ''
+" --- lightline <--- Airline setting {{{
+let g:lightline = {'colorscheme': 'one',}
+" let g:airline_powerline_fonts=1
+" let g:airline#extensions#tabline#enabled=1
+" let g:airline#extensions#tabline#buffer_nr_show=1
+" let g:airline#extensions#tabline#left_sep=''
+" let g:airline#extensions#tabline#left_alt_sep=''
+" nnoremap [b :bp<CR>
+" nnoremap ]b :bn<CR>
+" let g:airline_left_sep = ''
+" let g:airline_left_alt_sep = ''
+" let g:airline_right_sep = ''
+" let g:airline_right_alt_sep = ''
 " }}}
 
 " --- YouCompleteMe {{{
@@ -451,6 +458,36 @@ nnoremap <leader>jd :YcmCompleter GoToDefinitionElseDeclaration<CR>
 set tags+=../tags
 set tags+=~/opencv/opencv/tags          " 增加opencv跳转
 " }}}
+
+" --- vimux {{{
+map <Leader>vp :VimuxPromptCommand<CR>
+map <Leader>vq :VimuxCloseRunner<CR>
+" map <Leader>vm :VimuxPromptCommand("make ")<CR>
+" map <Leader>rb :call VimuxRunCommand("clear; rspec " . bufname("%"))<CR>
+" map <Leader>rq :call VimuxRunCommand("clear; rspec " . bufname("%"), 0)<CR>
+"  }}}
+
+" --- base16{{{
+colorscheme base16-atelier-dune
+"}}}
+
+" --- vim-easymotion{{{
+map  f <Plug>(easymotion-bd-f)
+nmap f <Plug>(easymotion-overwin-f)
+" s{char}{char} to move to {char}{char}
+" nmap s <Plug>(easymotion-overwin-f2)
+" Move to line
+map <Leader>l <Plug>(easymotion-bd-jk)
+nmap <Leader>l <Plug>(easymotion-overwin-line)
+" Move to word
+" map  <Leader>w <Plug>(easymotion-bd-w)
+" nmap <Leader>w <Plug>(easymotion-overwin-w)
+"  }}}
+
+" --- vim-commentary{{{
+"  TODO
+" nnoremap <C-_> gcc
+"}}}
 
 " --- miniBuf {{{
 let g:miniBufExplBRSplit = 1
@@ -486,13 +523,25 @@ let g:tagbar_width = 50
 let g:NERDTreeWinPos="left"
 let g:NERDTreeShowLineNumbers=1
 let g:NERDTreeShowHidden=1
-let g:NERDTreeIgnore = ['\.pyc$', '__pycache__']
-let g:NERDTreeWinSize=30
+let g:NERDTreeIgnore = ['\.pyc$', '__pycache__', '.git$[[dir]]', '.idea$[[dir]]']
+let g:NERDTreeWinSize=40
 let g:NERDTreeShowBookmarks = 1
 map <leader>nn :NERDTreeToggle<cr>
 map <leader>nb :NERDTreeFromBookmark<Space>
 map <leader>nf :NERDTreeFind<cr>
 map <leader>nB :Bookmark<Space>
+let g:NERDTreeIndicatorMapCustom = {
+    \ "Modified"  : "*",
+    \ "Staged"    : "✚",
+    \ "Untracked" : "✭",
+    \ "Renamed"   : "➜",
+    \ "Unmerged"  : "═",
+    \ "Deleted"   : "✖",
+    \ "Dirty"     : "✗",
+    \ "Clean"     : "✔︎",
+    \ 'Ignored'   : '☒',
+    \ "Unknown"   : "?"
+    \ }
 
 "autocmd vimenter * NERDTree
 " }}}
@@ -574,10 +623,11 @@ let g:indent_guides_guide_size=1
 " 快捷键 {{{
 " ctrl+G 显示当前目录名
 " zR     打开所有folds
-" zM     关闭所有folds
-" space  空格已经映射到了"/"
+" zM     关闭所有fold" space
+" 空格已经映射到了"/"
 " ss     will toggle and untoggle spell checking
 " <leader>pp paste设置toggle
 " gJ     将选中的行join（合并）
 " c-n    查找，并选中（多cursor）
 " }}}
+
