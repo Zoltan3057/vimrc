@@ -1,3 +1,7 @@
 let g:netrw_dirhistmax  =10
-let g:netrw_dirhist_cnt =1
+let g:netrw_dirhist_cnt =5
 let g:netrw_dirhist_1='/home/mario/Desktop/c++ offer/CodingInterviewChinese2-master/31_StackPushPopOrder'
+let g:netrw_dirhist_2='scp://robot@192.168.20.196/home/robot/ai/catkin_ws_hand/src/recognition_interface/'
+let g:netrw_dirhist_3='scp://robot@192.168.20.196//home/robot/ai/catkin_ws_hand/src/recognition_interface/'
+let g:netrw_dirhist_4='scp://robot@192.168.20.196//home/robot/ai/catkin_ws_hand/src/recognition_interface/scripts/'
+let g:netrw_dirhist_5='scp://robot@192.168.20.196//home/robot/ai/catkin_ws_hand/src/recognition_interface/'

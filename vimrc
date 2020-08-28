@@ -39,15 +39,21 @@ augroup END
 " like <leader>w saves the current file
 " Fast saving
 let g:auto_save = 1
-let g:auto_save_events = ["InsertLeave", "TextChanged", "TextChangedI", "CursorHoldI", "CompleteDone"]
+let g:auto_save_slient = 1
+let g:auto_save_events = ["InsertLeave", "TextChanged"]
 nmap <leader>w :w!<cr>
 
 " :W sudo saves the file
 " (useful for handling the permission-denied error)
-command W w !sudo tee % > /dev/null
+" command W w !sudo tee % > /dev/null
 
 " Set to auto read when a file is changed from the outside
 set autoread
+
+" save undo to files
+" Notice: clear vimundo
+set undofile
+set undodir=/home/mario/tmp/.vimundo/
 " }}}
 
 " --- wildMenu 设置 {{{
@@ -120,14 +126,15 @@ set wrap "Wrap lines
 " Close all the buffers
 " map <leader>ba :bufdo bd<cr>
 
-" map <leader>l :bnext<cr>
-" map <leader>h :bprevious<cr>
+map <leader>l :bnext<cr>
+map <leader>h :bprevious<cr>
 
 " Useful mappings for managing tabs
 map <leader>tn :tabnew<cr>
 map <leader>to :tabonly<cr>
 map <leader>tc :tabclose<cr>
 map <leader>tm :tabmove
+
 " map <leader>t<leader> :tabnext
 " " Let 'tl' toggle between this and the last accessed tab
 let g:lasttab = 2
@@ -228,7 +235,12 @@ map <leader>pp :setlocal paste!<cr>
 " autocmd BufWritePre,BufRead *.html :normal gg=G   " 自动对齐
 " }}}
 
-" Python 文件设置 {{{
+"  Python 文件设置 {{{
+
+autocmd FileType python let @d = 'oimport pdbpdb.set_trace()'
+autocmd FileType python let @m = 'A # [Mario]'
+autocmd FileType python let @n = 'o# [Mario]'
+
 "au BufNewFile,BufRead *.py  " au: autocmd
 "    \ set tabstop=4         "tab宽度
 "    \ set softtabstop=4
@@ -266,9 +278,9 @@ map <leader>pp :setlocal paste!<cr>
 let g:asyncrun_open = 6
 let g:asyncrun_bell = 1
 nnoremap <F7> :call asyncrun#quickfix_toggle(6)<cr>
-nnoremap <silent> <F8> :AsyncRun g++ -w "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
-nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
-nnoremap <F10> :call asyncrun#quickfix_toggle(6)<cr>
+autocmd filetype c nnoremap <silent> <F8> :AsyncRun g++ -w "$(VIM_FILEPATH)" -o "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
+autocmd filetype c nnoremap <silent> <F5> :AsyncRun -raw -cwd=$(VIM_FILEDIR) "$(VIM_FILEDIR)/$(VIM_FILENOEXT)" <cr>
+autocmd filetype python nnoremap <silent> <F5> :AsyncRun -raw python % <cr>
 
 "
 " }}}
@@ -307,68 +319,68 @@ set ffs=unix,dos,mac
 
 " 文件头增加注释 {{{
 " 使用F4键调用函数AddAuthor
-map <F4> ms:call AddAuthor()<cr>
-
-function AddAuthor()
-    let n=1
-    while n < 11
-        let line = getline(n)
-        if line=~'[#]*\s*\*\s*\S*Last\s*modified\s*:\s*\S*.*$'
-        call UpdateTitle()
-        return
-    endif
-    let n = n + 1
-    endwhile
-    if &filetype == 'sh'
-        call AddTitleForShell()
-    elseif &filetype == 'python'
-        call AddTitleForPython()
-    else
-        call AddTitleForC()
-    endif
-
-endfunction
+" map <F4> ms:call AddAuthor()<cr>
+"
+" function AddAuthor()
+"     let n=1
+"     while n < 11
+"         let line = getline(n)
+"         if line=~'[#]*\s*\*\s*\S*Last\s*modified\s*:\s*\S*.*$'
+"         call UpdateTitle()
+"         return
+"     endif
+"     let n = n + 1
+"     endwhile
+"     if &filetype == 'sh'
+"         call AddTitleForShell()
+"     elseif &filetype == 'python'
+"         call AddTitleForPython()
+"     else
+"         call AddTitleForC()
+"     endif
+"
+" endfunction
 
 "" 表示非.sh或.py结尾的文件添加此函数注释
-function AddTitleForC()
-    call append(0,"/***********************************************************************")
-    call append(1," *")
-    call append(2," * Mario Created on   : ".strftime("%Y-%m-%d %H:%M"))
-    call append(3," * Filename      : ".expand("%:t"))
-    call append(4," * Function      : ")
-    call append(5," *")
-    call append(6," *************************************************************************/")
-    call append(7,"")
-endfunction
-
-"" 表示.py添加此函数注释
-function AddTitleForPython()
-    call append(0,"#!/usr/bin/env python")
-    call append(1,"# coding:utf-8")
-    call append(2,"")
-    call append(3,"# **********************************************************")
-    call append(4,"# * Author        : Mario")
-"    call append(5,"# * Email         : ")
-"    call append(6,"# * Create time   : ".strftime("%Y-%m-%d %H:%M"))
-    call append(7,"# * Last modified : ".strftime("%Y-%m-%d %H:%M"))
-    call append(8,"# * Filename      : ".expand("%:t"))
-    call append(9,"# * Description   : ")
-    call append(10,"# **********************************************************")
-    echohl WarningMsg | echo "Successful in adding the copyright." | echohl None
-endfunction
-
-"" 表示.sh文件添加此行数注释
-function AddTitleForShell()
-    call append(0,"#!/bin/bash")
-    call append(1,"# **********************************************************")
-    call append(2,"# * Author        : pengyongshi")
-    call append(3,"# * Email         : 58217892@qq.com")
-    call append(4,"# * Create time   : ".strftime("%Y-%m-%d %H:%M"))
-    call append(5,"# * Last modified : ".strftime("%Y-%m-%d %H:%M"))
-    call append(6,"# * Filename      : ".expand("%:t"))
-    call append(7,"# * Description   : ")
-    call append(8,"# **********************************************************")
-endfunction
+" function AddTitleForC()
+"     call append(0,"/***********************************************************************")
+"     call append(1," *")
+"     call append(2," * Mario Created on   : ".strftime("%Y-%m-%d %H:%M"))
+"     call append(3," * Filename      : ".expand("%:t"))
+"     call append(4," * Function      : ")
+"     call append(5," *")
+"     call append(6," *************************************************************************/")
+"     call append(7,"")
+" endfunction
+"
+" "" 表示.py添加此函数注释
+" function AddTitleForPython()
+"     call append(0,"#!/usr/bin/env python")
+"     call append(1,"# coding:utf-8")
+"     call append(2,"")
+"     call append(3,"# **********************************************************")
+"     call append(4,"# * Author        : Mario")
+" "    call append(5,"# * Email         : ")
+" "    call append(6,"# * Create time   : ".strftime("%Y-%m-%d %H:%M"))
+"     call append(7,"# * Last modified : ".strftime("%Y-%m-%d %H:%M"))
+"     call append(8,"# * Filename      : ".expand("%:t"))
+"     call append(9,"# * Description   : ")
+"     call append(10,"# **********************************************************")
+"     echohl WarningMsg | echo "Successful in adding the copyright." | echohl None
+" endfunction
+"
+" "" 表示.sh文件添加此行数注释
+" function AddTitleForShell()
+"     call append(0,"#!/bin/bash")
+"     call append(1,"# **********************************************************")
+"     call append(2,"# * Author        : pengyongshi")
+"     call append(3,"# * Email         : 58217892@qq.com")
+"     call append(4,"# * Create time   : ".strftime("%Y-%m-%d %H:%M"))
+"     call append(5,"# * Last modified : ".strftime("%Y-%m-%d %H:%M"))
+"     call append(6,"# * Filename      : ".expand("%:t"))
+"     call append(7,"# * Description   : ")
+"     call append(8,"# **********************************************************")
+" endfunction
 "  }}}
 
 " vim-plug {{{
@@ -376,52 +388,57 @@ endfunction
 " +++ plug列表 {{{
 call plug#begin('~/.vim/plug')
 
+Plug 'mhinz/vim-startify'                               " startup           初始界面
 Plug 'vim-scripts/The-NERD-tree'                        " nerd-tree         文件目录结构
-Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'Xuyuanp/nerdtree-git-plugin'                      " nerd-tree-git
 Plug 'majutsushi/tagbar'                                " tagbar            文件结构
 Plug 'ntpeters/vim-better-whitespace'                   " whitespace        冗余空格去除
-Plug 'benmills/vimux'                                   " vimux             融合tmux
 Plug 'christoomey/vim-tmux-navigator'                   " vimux             窗口移动
-Plug 'tpope/vim-commentary'                             "                   注释功能(gcc)
+Plug 'tpope/vim-commentary'                             " gcc               注释功能
 Plug 'chriskempson/base16-vim'                          " themes
-Plug 'terryma/vim-multiple-cursors'                     "                   多光标功能(c-n)
-Plug 'vim-scripts/DoxygenToolkit.vim'                   "                   Doxygen注释功能(:Dox)
-Plug 'itchyny/lightline.vim'
-Plug 'tpope/vim-surround'                               "                   更改surrounding
-Plug 'kien/ctrlp.vim'                                   "                   正则表达式打开文件(c-p)
+Plug 'terryma/vim-multiple-cursors'                     " c-n               多光标功能
+Plug 'vim-scripts/DoxygenToolkit.vim'                   " :Dox              Doxygen注释功能(:Dox)
+Plug 'itchyny/lightline.vim'                            " lightline
+Plug 'tpope/vim-surround'                               " ds,cs,ys(s)       更改surrounding
+Plug 'kien/ctrlp.vim'                                   " c-p               正则表达式打开文件(c-p)
 Plug 'nathanaelkane/vim-indent-guides'                  "                   缩进显示
 Plug 'fholgado/minibufexpl.vim'                         " minibufexpl       缓冲工具
-Plug 'easymotion/vim-easymotion'                        " asymotion        移动工具
-Plug 'Valloric/YouCompleteMe',{'for':['c','cpp']}       " YCM               c++ 补全工具
+Plug 'easymotion/vim-easymotion'                        " asymotion         移动工具
 Plug 'python-mode/python-mode', { 'for': 'python', 'branch': 'develop' }
                                                         " PythonMode        {P}包括pylint, rope, pydoc
-" Plug 'davidhalter/jedi-vim', { 'for': 'python', 'branch': 'develop' }
+Plug 'davidhalter/jedi-vim', {'for': 'python', 'branch': 'develop' }
                                                         " JEDI              python 补全工具
-
 Plug 'tpope/vim-fugitive'                               "                   {P}GIT 功能
 Plug 'airblade/vim-gitgutter'
 Plug 'idanarye/vim-merginal'
 Plug 'skywind3000/asyncrun.vim'
-Plug 'mhinz/vim-startify'                              "                   初始界面
 Plug 'elzr/vim-json'
+Plug '907th/vim-auto-save'                              "                   vim automatic saving
 
-" Plug 'SirVer/ultisnips'                               " TODO              全代码块补全
-" Plug 'tpope/vim-rails'                                "                   针对RubyOnRails代码
-" Plug 'suan/vim-instant-markdown'                      "                   markdown书写功能
-" Plug 'godlygeek/tabular'                              " tabular           对齐工具
+Plug 'godlygeek/tabular', {'for': 'md'}                 "                   Line up text
+Plug 'gu-fan/riv.vim'                    "                   Markdown and reStructuredText
+
+" Plug 'benmills/vimux'                                   " vimux             融合tmux
+" Plug 'plasticboy/vim-markdowm', {'for':'md'}            "                   Markdown Preview
+" Plug 'MikeCoder/markdown-preview.vim'                   "                   Markdown Preview
+" Plug 'Valloric/YouCompleteMe',{'for':['c','cpp']}       " YCM               c++ 补全工具
+" Plug 'SirVer/ultisnips'                                 " TODO              全代码块补全
+" Plug 'tpope/vim-rails'                                  "                   针对RubyOnRails代码
+" Plug 'suan/vim-instant-markdown'                        "                   markdown书写功能
+" Plug 'godlygeek/tabular'                                " tabular           对齐工具
 " Plug 'universal-ctags/ctags'
-" Plug 'w0rp/ale'                                       " 需要vim8支持
+" Plug 'w0rp/ale'                                         " 需要vim8支持
 " Plug 'scrooloose/syntastic'
 " Plug 'scrooloose/nerdcommenter'
 " Plug 'Raimondi/delimitMate'
 " Plug 'octol/vim-cpp-enhanced-highlight'
-" Plug 'junegunn/goyo.vim'					            " Hyperfocus-writing in VIM
-" Plug 'nathanaelkane/vim-indent-guides'		        " Visually displaying indent levels in VIM
+" Plug 'junegunn/goyo.vim'					              " Hyperfocus-writing in VIM
+" Plug 'nathanaelkane/vim-indent-guides'		          " Visually displaying indent levels in VIM
 " Plug 'plasticboy/vim-markdown'
 " Plug 'yianwillis/vimcdoc'
 " Plug 'klen/python-mode'
 " Plug 'ryanoasis/vim-devicons'
-" Plug 'vim-airline/vim-airline'                        " airline           底行辅助功能  --->lightline
+" Plug 'vim-airline/vim-airline'                          " airline           底行辅助功能  --->lightline
 "  junegunn/fzf
 
 
@@ -477,8 +494,8 @@ nmap f <Plug>(easymotion-overwin-f)
 " s{char}{char} to move to {char}{char}
 " nmap s <Plug>(easymotion-overwin-f2)
 " Move to line
-map <Leader>l <Plug>(easymotion-bd-jk)
-nmap <Leader>l <Plug>(easymotion-overwin-line)
+" map <Leader>l <Plug>(easymotion-bd-jk)
+" nmap <Leader>l <Plug>(easymotion-overwin-line)
 " Move to word
 " map  <Leader>w <Plug>(easymotion-bd-w)
 " nmap <Leader>w <Plug>(easymotion-overwin-w)
@@ -491,12 +508,29 @@ nmap <Leader>l <Plug>(easymotion-overwin-line)
 
 " --- miniBuf {{{
 let g:miniBufExplBRSplit = 1
-noremap <C-TAB>   :MBEbn<CR>
-noremap <C-S-TAB> :MBEbp<CR>
+" noremap <C-TAB>   :MBEbn<CR>
+" noremap <C-S-TAB> :MBEbp<CR>
+noremap <Leader>t :MBEToggle<cr>
+let g:miniBufExplBRSplit = 0   " Put new window above
+" let g:miniBufExplVSplit = 30   " column width in chars
 " MRU fasion ???
 "noremap <C-TAB>   :MBEbf<CR>
 "noremap <C-S-TAB> :MBEbb<CR>
 "
+"  }}}
+
+" --- ctrlP {{{
+let g:ctrlp_custom_ignore = {
+    \ 'dir':  '\v[\/]\.(git|hg|svn|rvm)$',
+    \ 'file': '\v\.(exe|so|dll|zip|tar|tar.gz|pyc)$',
+    \ }
+let g:ctrlp_working_path_mode=0
+let g:ctrlp_match_window_bottom=1
+let g:ctrlp_max_height=6
+let g:ctrlp_match_window_reversed=0
+let g:ctrlp_mruf_max=500
+let g:ctrlp_follow_symlinks=1
+
 "  }}}
 
 " --- ale {{{
@@ -516,7 +550,8 @@ noremap <C-S-TAB> :MBEbp<CR>
 
 " --- tagbar {{{
 nnoremap <silent> <F9> :TagbarToggle<CR>
-let g:tagbar_width = 50
+let g:tagbar_width = 40
+let g:tagbar_left = 1
 " }}}
 
 " --- nerd-tree {{{
@@ -524,7 +559,7 @@ let g:NERDTreeWinPos="left"
 let g:NERDTreeShowLineNumbers=1
 let g:NERDTreeShowHidden=1
 let g:NERDTreeIgnore = ['\.pyc$', '__pycache__', '.git$[[dir]]', '.idea$[[dir]]']
-let g:NERDTreeWinSize=40
+let g:NERDTreeWinSize = 40
 let g:NERDTreeShowBookmarks = 1
 map <leader>nn :NERDTreeToggle<cr>
 map <leader>nb :NERDTreeFromBookmark<Space>
@@ -588,22 +623,46 @@ source /home/mario/.vim/cscope_maps.vim
 "}}}
 
 " --- jedi-vim {{{
-let g:jedi#conpletions_command = "<C-N>"
+" git clone --recursive https://github.com/davidhalter/jedi-vim.git ~/.vim/plug/jedi-vim
+let g:jedi#completions_enabled = "<C-N>"
+let g:jedi#use_tabs_not_buffers = 0
 let g:jedi#completions_enabled = 1
 let g:jedi#show_call_signatures = 2
 let g:jedi#smart_auto_mappings = 1
+let g:jedi#use_splits_not_buffers = 'bottom'
+let g:jedi#popup_on_dot = 0
+let g:jedi#popup_select_first = 0
+let g:jedi#documentation_command = ""
 " }}}
 
 " --- python-mode {{{
-
-let g:pymode = 0
-let g:pyindent = 0
-let g:pymode_options = 0
-let g:pymode_options_colorcolumn = 0
-let g:pymode_folding = 0
+let g:pymode = 1
+let g:pyindent = 1
+let g:pymode_options = 1
+let g:pymode_options_colorcolumn = 1
 let g:pymode_motion = 1
+let g:pymode_folding = 0
 let g:pymode_virtualenv = 0
+let g:pymode_breakpoint = 0
+
+" run
 let g:pymode_run = 0
+" let g:pymode_run_bind = '<F5>'
+
+" dot
+let g:pymode_doc = 1
+let g:pymode_doc_bind = 'K'
+
+" lint
+let g:pymode_lint = 1
+let g:pymode_lint_on_fly = 0
+let g:pymode_lint_on_write = 0
+let g:pymode_lint_unmodified = 0
+let g:pymode_lint_message = 1
+let g:pymode_lint_checkers = ['pyflakes', 'pep8', 'mccabe']
+let g:pymode_lint_cwindow = 1
+
+let g:pymode_rope = 0
 
 "  }}}
 
@@ -618,6 +677,12 @@ let g:indent_guides_start_level=1
 let g:indent_guides_guide_size=1
 "  }}}
 
+" --- vim-markdown-preview {{{
+let g:PluginDir = '/home/mario/.vim/plug/markdown-preview.vim'
+"  }}}
+
+"
+
 "  }}}
 
 " 快捷键 {{{
@@ -629,5 +694,7 @@ let g:indent_guides_guide_size=1
 " <leader>pp paste设置toggle
 " gJ     将选中的行join（合并）
 " c-n    查找，并选中（多cursor）
+" :normal @a  execute macro in command
+" ~     toggle between lower case letter and capital letter
 " }}}
 
